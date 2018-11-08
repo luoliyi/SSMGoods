@@ -30,6 +30,7 @@
             <result property="tname" column="tname"></result>
         </association>
     </resultMap>
+
     <!--通过条件或者名称查询全部结果集-->
     <select id="selectAllGoodsAndTypeByLimit" resultMap="allGoodsAndType" parameterType="java.util.Map">
         select * from GoodsDetails as g join GoodsType as t on g.tid=t.tid

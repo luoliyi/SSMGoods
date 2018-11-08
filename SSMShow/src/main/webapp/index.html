@@ -35,7 +35,7 @@
             margin-top: 10px;
         }
     </style>
-    <link rel="shortcut icon" href="//www.suning.com/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="image/1.jpg" type="image/x-icon">
     <link href="js/layui/css/layui.css" rel="stylesheet" type="text/css">
 </head>
 <body>
@@ -118,42 +118,58 @@
             * 初次请求加载数据
             * */
             firstRequest(){
-                $.post("goodsController/getAllDataCount",{},function (sum) {
+                var mohuListLimit=new Array();
+                mohuListLimit.push($("#goodname").val());
+                mohuListLimit.push($("#goodtypename").val());
+                mohuListLimit.push($("#startprice").val());
+                mohuListLimit.push($("#endprice").val());
 
-                    //分页
-                    layui.use(['laypage', 'layer'], function() {
-                        var laypage = layui.laypage
-                            , layer = layui.layer;
-                        //总页数大于页码总数
-                        laypage.render({
-                            elem: 'demo2-1'
-                            ,limit:4
-                            , count: sum //数据总数
-                            //当前页
-                            ,curr: location.hash.replace('#!fenye=', '') //获取起始页
-                            ,hash: 'fenye' //自定义hash值
-                            , jump: function (obj) {
-                                /*一个数组传两个参数*/
-                                var objlist=[];
-                                objlist.push(obj.curr);
-                                objlist.push(obj.limit);
-                                //请求数据
-                                $.ajax({
-                                    url:"goodsController/mohuSelectWithLimit",
-                                    type:"POST",
-                                    contentType:"application/json;charset=utf-8",
-                                    data:JSON.stringify(objlist),
-                                    beforeSend:function(){
-                                      console.log(objlist)
-                                    },
-                                    success:function (jsdata) {
-                                        app.showData(jsdata);
-                                    }
-                                })
-                            }
-                        });
-                    })
-                })
+                $.ajax({
+                    url:"goodsController/mohuGetAllGoodsCount",
+                    type:"POST",
+                    contentType:"application/json;charset=utf-8",
+                    data:JSON.stringify(mohuListLimit),
+                    success:function(sum) {
+                        console.log("sum:"+sum);
+                        //分页
+                        layui.use(['laypage', 'layer'], function () {
+                            var laypage = layui.laypage
+                                , layer = layui.layer;
+                            //总页数大于页码总数
+                            laypage.render({
+                                elem: 'demo2-1'
+                                , limit: 4
+                                , count: sum //数据总数
+                                //当前页
+                                , curr: location.hash.replace('#!fenye=', '') //获取起始页
+                                , hash: 'fenye' //自定义hash值
+                                , jump: function (obj) {
+                                    var objlist = new Array();
+                                    objlist.push($("#goodname").val());
+                                    objlist.push($("#goodtypename").val());
+                                    objlist.push($("#startprice").val());
+                                    objlist.push($("#endprice").val());
+                                    objlist.push(obj.curr);
+                                    objlist.push(obj.limit);
+
+                                    //请求数据
+                                    $.ajax({
+                                        url: "goodsController/mohuGetAllGoodsByPage",
+                                        type: "POST",
+                                        contentType: "application/json;charset=utf-8",
+                                        data: JSON.stringify(objlist),
+                                        beforeSend: function () {
+                                            console.log(objlist)
+                                        },
+                                        success: function (jsdata) {
+                                            app.showData(jsdata);
+                                        }
+                                    })
+                                }
+                            });
+                        })
+                    }
+                });
             }
 
             /*
@@ -291,6 +307,7 @@
                     "gpicture":gpicture,
                     "tid":$("#typenames").val(),
                 };
+
                 $.ajax({
                     url:"goodsController/insert",
                     type:"post",
@@ -324,58 +341,7 @@
             *
             * */
             ,mohuSelect(){
-                var mohuListLimit=new Array();
-                mohuListLimit.push($("#goodname").val());
-                mohuListLimit.push($("#goodtypename").val());
-                mohuListLimit.push($("#startprice").val());
-                mohuListLimit.push($("#endprice").val());
-
-                $.ajax({
-                    url:"goodsController/mohuGetAllGoodsCount",
-                    type:"POST",
-                    contentType:"application/json;charset=utf-8",
-                    data:JSON.stringify(mohuListLimit),
-                    success:function(sum) {
-                        console.log("sum:"+sum);
-                        //分页
-                        layui.use(['laypage', 'layer'], function () {
-                            var laypage = layui.laypage
-                                , layer = layui.layer;
-                            //总页数大于页码总数
-                            laypage.render({
-                                elem: 'demo2-1'
-                                , limit: 4
-                                , count: sum //数据总数
-                                //当前页
-                                , curr: location.hash.replace('#!fenye=', '') //获取起始页
-                                , hash: 'fenye' //自定义hash值
-                                , jump: function (obj) {
-                                    var objlist = new Array();
-                                    objlist.push($("#goodname").val());
-                                    objlist.push($("#goodtypename").val());
-                                    objlist.push($("#startprice").val());
-                                    objlist.push($("#endprice").val());
-                                    objlist.push(obj.curr);
-                                    objlist.push(obj.limit);
-
-                                    //请求数据
-                                   $.ajax({
-                                        url: "goodsController/mohuGetAllGoodsByPage",
-                                        type: "POST",
-                                        contentType: "application/json;charset=utf-8",
-                                        data: JSON.stringify(objlist),
-                                        beforeSend: function () {
-                                            console.log(objlist)
-                                        },
-                                        success: function (jsdata) {
-                                            app.showData(jsdata);
-                                        }
-                                    })
-                                }
-                            });
-                        })
-                    }
-                });
+                app.firstRequest();
             }
 
             /*
